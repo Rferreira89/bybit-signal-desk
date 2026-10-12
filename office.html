@@ -3,147 +3,126 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
 <title>Signal Desk Office</title>
 <style>
+  :root {
+    --bg: #070a10;
+    --panel: #11151c;
+    --border: #1f2630;
+    --text: #e8eef6;
+    --muted: #8a95a5;
+    --green: #3dd68c;
+  }
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body {
-    background: #0b0e14;
-    color: #e6edf3;
-    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    overflow: hidden;
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
     height: 100vh;
+    overflow: hidden;
   }
-  .header {
-    position: absolute; top: 0; left: 0; right: 0;
-    padding: 16px 20px;
-    background: linear-gradient(180deg, rgba(11,14,20,0.95), transparent);
-    z-index: 10;
+  .top {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+    padding: 18px 20px 12px;
+    background: linear-gradient(to bottom, rgba(7,10,16,0.95), transparent);
     display: flex; justify-content: space-between; align-items: center;
   }
-  .header h1 { font-size: 22px; font-weight: 700; }
-  .status { font-size: 13px; color: #7ee787; display: flex; align-items: center; gap: 6px; }
-  .status::before { content: ""; width: 8px; height: 8px; background: #7ee787; border-radius: 50%; display: inline-block; }
-  .stats {
-    position: absolute; top: 70px; left: 16px; right: 16px;
-    display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px;
-    z-index: 10;
+  .top h1 { font-size: 20px; font-weight: 700; }
+  .live { font-size: 12px; color: var(--green); display: flex; align-items: center; gap: 6px; }
+  .live::before { content: ""; width: 7px; height: 7px; background: var(--green); border-radius: 50%; }
+  .metrics {
+    position: absolute; top: 62px; left: 12px; right: 12px; z-index: 20;
+    display: grid; grid-template-columns: repeat(4, 1fr); gap: 6px;
   }
-  .stat {
-    background: #161b22; border: 1px solid #30363d; border-radius: 10px;
-    padding: 10px; text-align: center;
+  .metric {
+    background: var(--panel); border: 1px solid var(--border); border-radius: 12px;
+    padding: 8px 6px; text-align: center;
   }
-  .stat .label { font-size: 11px; color: #8b949e; }
-  .stat .value { font-size: 16px; font-weight: 700; margin-top: 2px; }
-  .office {
+  .metric .l { font-size: 10px; color: var(--muted); }
+  .metric .v { font-size: 15px; font-weight: 650; margin-top: 2px; }
+  .scene {
     position: absolute; inset: 0;
     display: flex; align-items: center; justify-content: center;
-    perspective: 1200px;
   }
-  .floor {
-    width: 700px; height: 500px;
-    background: #0d1117;
-    border: 1px solid #21262d;
-    transform: rotateX(55deg) rotateZ(-15deg);
+  .iso {
+    width: 680px; height: 480px;
     position: relative;
-    box-shadow: 0 40px 80px rgba(0,0,0,0.6);
+    transform: rotateX(58deg) rotateZ(-28deg);
   }
   .room {
-    position: absolute; border: 2px solid #30363d; border-radius: 8px;
-    background: rgba(22,27,34,0.7);
+    position: absolute;
+    background: rgba(17,21,28,0.8);
+    border: 1.5px solid #2a3340;
+    border-radius: 6px;
   }
-  .room-label {
-    position: absolute; top: -22px; left: 50%; transform: translateX(-50%);
-    background: #21262d; color: #c9d1d9; font-size: 11px; padding: 2px 8px; border-radius: 6px;
-    white-space: nowrap;
+  .room::before {
+    content: attr(data-name);
+    position: absolute; top: -26px; left: 50%; transform: translateX(-50%);
+    background: #1a2029; color: #c5cdd8; font-size: 11px; font-weight: 600;
+    padding: 3px 9px; border-radius: 6px; white-space: nowrap;
   }
-  .agent {
-    position: absolute; width: 28px; height: 28px; border-radius: 50%;
-    display: flex; align-items: center; justify-content: center;
-    font-size: 14px; box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-    transition: all 0.4s ease;
+  .person {
+    position: absolute; width: 22px; height: 22px; border-radius: 50%;
+    display: grid; place-items: center; font-size: 11px; font-weight: 700; color: #fff;
   }
-  .agent.working { animation: pulse 2s infinite; }
-  @keyframes pulse {
+  .person.active { animation: breathe 2.4s ease-in-out infinite; }
+  @keyframes breathe {
     0%, 100% { transform: scale(1); }
-    50% { transform: scale(1.08); }
+    50% { transform: scale(1.12); }
   }
-  .sidebar {
-    position: absolute; right: 12px; top: 160px; bottom: 80px; width: 220px;
-    background: rgba(22,27,34,0.9); border: 1px solid #30363d; border-radius: 12px;
-    padding: 12px; overflow-y: auto; z-index: 10;
+  .side {
+    position: absolute; right: 10px; top: 150px; bottom: 70px; width: 190px; z-index: 20;
+    background: rgba(17,21,28,0.95); border: 1px solid var(--border); border-radius: 14px;
+    padding: 14px;
   }
-  .sidebar h3 { font-size: 13px; margin-bottom: 10px; color: #8b949e; }
-  .signal-item {
-    background: #0d1117; border-radius: 8px; padding: 8px; margin-bottom: 8px; font-size: 12px;
-  }
-  .signal-item .pair { font-weight: 700; }
-  .long { color: #7ee787; }
-  .short { color: #f85149; }
-  .bottom-bar {
-    position: absolute; bottom: 0; left: 0; right: 0;
-    background: #161b22; border-top: 1px solid #30363d;
-    padding: 12px 20px; text-align: center; font-size: 14px; z-index: 10;
+  .side h3 { font-size: 12px; color: var(--muted); margin-bottom: 10px; }
+  .empty { color: var(--muted); font-size: 12px; text-align: center; padding: 20px 8px; }
+  .bar {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+    background: #11151c; border-top: 1px solid var(--border);
+    padding: 14px; text-align: center; font-size: 13px; color: var(--muted);
   }
 </style>
 </head>
 <body>
-<div class="header">
-  <h1>Signal Desk Office</h1>
-  <div class="status">Online · só USDC</div>
+<div class="top">
+  <h1>Signal Desk</h1>
+  <div class="live">Online · USDC</div>
 </div>
 
-<div class="stats">
-  <div class="stat"><div class="label">Capital</div><div class="value">87 USDC</div></div>
-  <div class="stat"><div class="label">Sinais hoje</div><div class="value" id="signals-today">0</div></div>
-  <div class="stat"><div class="label">Último scan</div><div class="value">há pouco</div></div>
-  <div class="stat"><div class="label">Filtros</div><div class="value">Rigorosos</div></div>
+<div class="metrics">
+  <div class="metric"><div class="l">Capital</div><div class="v">87</div></div>
+  <div class="metric"><div class="l">Sinais</div><div class="v">0</div></div>
+  <div class="metric"><div class="l">Scan</div><div class="v">15m</div></div>
+  <div class="metric"><div class="l">Filtro</div><div class="v">Alto</div></div>
 </div>
 
-<div class="office">
-  <div class="floor">
-    <div class="room" style="left: 40px; top: 40px; width: 220px; height: 160px;">
-      <div class="room-label">Sala de Reunião</div>
-      <div class="agent working" style="left: 90px; top: 50px; background: #58a6ff;">A</div>
-      <div class="agent" style="left: 40px; top: 90px; background: #d2a8ff;">R</div>
-    </div>
-    <div class="room" style="left: 280px; top: 40px; width: 180px; height: 140px;">
-      <div class="room-label">Café</div>
-      <div class="agent" style="left: 70px; top: 50px; background: #ffa657;">S</div>
-    </div>
-    <div class="room" style="left: 40px; top: 220px; width: 280px; height: 200px;">
-      <div class="room-label">Controlo</div>
-      <div class="agent working" style="left: 60px; top: 40px; background: #7ee787;">C</div>
-      <div class="agent working" style="left: 140px; top: 70px; background: #79c0ff;">M</div>
-      <div class="agent" style="left: 200px; top: 120px; background: #ff7b72;">E</div>
-    </div>
-    <div class="room" style="left: 340px; top: 200px; width: 300px; height: 220px;">
-      <div class="room-label">Centro de Comando</div>
-      <div class="agent working" style="left: 80px; top: 60px; background: #d2a8ff;">P</div>
-      <div class="agent" style="left: 160px; top: 100px; background: #ffa657;">X</div>
-    </div>
+<div class="scene">
+  <div class="iso">
+    <div class="room" data-name="Reunião" style="left:30px; top:30px; width:200px; height:140px;"></div>
+    <div class="person active" style="left:100px; top:70px; background:#4c9aff;">A</div>
+    <div class="person" style="left:60px; top:100px; background:#a78bfa;">R</div>
+
+    <div class="room" data-name="Café" style="left:250px; top:20px; width:160px; height:120px;"></div>
+    <div class="person" style="left:310px; top:60px; background:#ffb020;">S</div>
+
+    <div class="room" data-name="Análise" style="left:20px; top:190px; width:260px; height:180px;"></div>
+    <div class="person active" style="left:70px; top:230px; background:#3dd68c;">C</div>
+    <div class="person active" style="left:140px; top:250px; background:#60a5fa;">M</div>
+    <div class="person" style="left:200px; top:290px; background:#ff6b6b;">E</div>
+
+    <div class="room" data-name="Comando" style="left:300px; top:180px; width:280px; height:200px;"></div>
+    <div class="person active" style="left:360px; top:230px; background:#c084fc;">P</div>
+    <div class="person" style="left:440px; top:270px; background:#fb923c;">X</div>
   </div>
 </div>
 
-<div class="sidebar">
+<div class="side">
   <h3>Últimos sinais</h3>
-  <div id="signals-list">
-    <div class="signal-item" style="color:#8b949e; text-align:center; padding:20px 0;">
-      Aguardando setups de alta qualidade…
-    </div>
-  </div>
+  <div class="empty">Aguardando setups de alta qualidade…</div>
 </div>
 
-<div class="bottom-bar">
-  Centro de comando · Scan a cada 15 min · Só USDC · Tu decides
-</div>
-
-<script>
-const agents = document.querySelectorAll('.agent');
-setInterval(() => {
-  agents.forEach(a => {
-    if (Math.random() > 0.7) a.classList.toggle('working');
-  });
-}, 4000);
-</script>
+<div class="bar">Centro de comando · Scan rigoroso a cada 15 min</div>
 </body>
 </html>
